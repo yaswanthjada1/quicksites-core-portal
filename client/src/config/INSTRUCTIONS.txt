@@ -1,0 +1,101 @@
+=======================================================================
+          QUICKSITES STUDIO — CORE PORTAL USER INSTRUCTION GUIDE
+=======================================================================
+
+Welcome to your Intelligent Core Console & Canvas Workspace. This system 
+bridges your local data infrastructure with a localized AI orchestration 
+layer to offer seamless querying, metrics tracking, and absolute-pixel 
+workspace layout compilation.
+
+Follow the operational frameworks below to initialize and navigate your 
+instance.
+
+-----------------------------------------------------------------------
+1. INITIAL PREREQUISITES & ENVIRONMENT TERMINAL SETUP
+-----------------------------------------------------------------------
+Before spinning up the interface pipelines, ensure your local hardware 
+nodes have the following instances initialized:
+
+  ● Database Cluster: A local or cloud MongoDB server instance.
+  ● AI Engine Node: Ollama must be active in the background.
+  ● Running the AI Model: Ensure the lightweight coder footprint is 
+    pulled and configured by executing this command in your terminal:
+    
+    > ollama run qwen2.5-coder:1.5b
+
+-----------------------------------------------------------------------
+2. APPLICATION INITIALIZATION (LAUNCH CODES)
+-----------------------------------------------------------------------
+To run the dual-layer stack (Backend API + Frontend Interface):
+
+  A. BACKEND ENVIRONMENT (API Portal on Port 5000)
+     1. Navigate to your server folder directory: cd server
+     2. Boot the network routing runtime: npm run dev
+     
+  B. FRONTEND INTERFACE (Vite App on Port 5173)
+     1. Navigate to your client folder directory: cd client
+     2. Launch the absolute canvas layout viewport: npm run dev
+     3. Open your browser signature path and navigate to:
+        http://localhost:5173
+
+-----------------------------------------------------------------------
+3. OPERATIONAL ROADMAP: DASHBOARD OPERATIONS
+-----------------------------------------------------------------------
+Once authenticated via the initial onboarding security handshake wizard:
+
+  ● Schema Discovery: Click the "[DISCOVER_COLLECTIONS]" button at the 
+    top of the layout array. The engine will list all active collections.
+  ● Streaming Data: Enter or select a collection name (e.g., "corporate") 
+    and hit "Retrieve Records" to populate the console stream buffer.
+  ● SVG Telemetry Line Graph: The neon trendline graph automatically 
+    adapts to whatever data drops in. It parses text fields as labels 
+    and displays active numeric values when you hover over the coordinate nodes.
+
+-----------------------------------------------------------------------
+4. CONVERSATIONAL STREAM: INTELLIGENT QUERY AGENT
+-----------------------------------------------------------------------
+Click "Open Database Query Interface" to launch your overlay assistant modal:
+
+  ● English-to-Query Compilation: Type natural language instructions 
+    (e.g., "how many entries are there" or "find records with high values").
+  ● Live Execution Output: The assistant converts your prompt to MongoDB 
+    syntax, searches the target scope, and embeds a scrollable live 
+    JSON preview and row count indicator directly inside the chat bubble.
+
+-----------------------------------------------------------------------
+5. CREATIVE FRAMEWORK: INFINITE WORKSPACE BOARD
+-----------------------------------------------------------------------
+Click the floating layout canvas icon on the bottom right to enter the Pin Board:
+
+  ● Draggable & Resizable Cards: Click and hold the movement arrow icon 
+    on any card to reposition it, or drag the bottom-right corner anchor 
+    to scale card dimensions freely across absolute pixels.
+  ● AI Widget Compiler: Open the "Blueprint Registry" drawer on the 
+    right. Type structural instructions into the prompt factory layout 
+    (e.g., "Show server storage volume status showing optimal at 65%").
+  ● Factory Compilation: Click "Execute Factory Compilation". The local 
+    AI engine compiles a custom dashboard card model. Click "Place" to 
+    drop it onto your absolute canvas workspace grid.
+  ● Preserving State: Click "[COMMIT_ARTBOARD_COORDINATES]" to instantly 
+    lock your pixel locations and card deck configurations directly 
+    into your database configuration metadata collections.
+
+-----------------------------------------------------------------------
+6. SYSTEM DIAGNOSTICS & TROUBLESHOOTING
+-----------------------------------------------------------------------
+If the interface pipeline hits an execution exception, track these paths:
+
+  ● Error Check 404 (Not Found): Ensure your backend application is 
+    actively running on port 5000 and that your main root app file 
+    has mounted the layout router: app.use('/api/pinboard', pinboardRouter);
+  ● Unexpected Token '<' (SyntaxError): This indicates the frontend is 
+    hitting an unregistered route vector and getting back an HTML error page. 
+    Kill the background task using your system console and run 
+    "npx kill-port 5000" before re-launching the development commands.
+  ● AI Generation Delays: If card compilation hangs, confirm that Ollama 
+    is listening natively on port 11434 and the model weight files are 
+    fully initialized.
+
+=======================================================================
+             SYSTEM STATUS INDICATOR: [ RUNNING / OPTIMAL ]
+=======================================================================
