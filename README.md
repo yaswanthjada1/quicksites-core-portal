@@ -258,6 +258,22 @@ Bash
 ```
   npx kill-port 5000
   npx kill-port 5173
+
+---
+
+## 🤝 Acknowledgments & Product Strategy
+
+While the full-stack architecture, local AI orchestration, and codebase were engineered entirely from scratch, a major shout-out goes to **Javvadi Karun Swagath** for serving as the core product strategist for this build. 
+
+His deep expertise in enterprise business intelligence and Power BI architectures was fundamental in mapping out the dashboard logic. He provided vital guidance on how complex data schemas should map to telemetry streams and how user-centric analytics frameworks operate, making it possible to cleanly translate those data visualization methodologies into this custom React/Node.js stack.
+
+---
+
+## 📜 License
+
+See the `LICENSE` file for full terms regarding the proprietary restrictions and anti-resale clauses protecting this software architecture.
+
+### 🔒 Operational Matrix Status: `OPTIMAL / ONLINE`
 ```
 
 - **AI Generation Timeouts:**
