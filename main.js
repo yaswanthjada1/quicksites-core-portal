@@ -6,6 +6,10 @@ let backendProcess = null;
 const BACKEND_PORT = process.env.PORT || '5000';
 const MODEL_CHECK_TIMEOUT_MS = 45_000;
 
+/**
+ * Create and initialize the primary Electron browser window.
+ * Loads the client UI from a local build output path or a configured dev URL.
+ */
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1280,
@@ -61,6 +65,9 @@ function spawnBackend() {
   return backend;
 }
 
+/**
+ * Terminate the backend child process gracefully, with a forced kill fallback.
+ */
 function backendShutdown() {
   if (!backendProcess) {
     return;
@@ -81,6 +88,10 @@ function backendShutdown() {
   }, 3000);
 }
 
+/**
+ * Validate availability of the local Ollama model before launching the UI.
+ * Resolves false if the model check times out or exits with a non-zero status.
+ */
 function validateOllamaModel() {
   return new Promise((resolve) => {
     console.log('[Electron] Running cold-boot Ollama validation...');

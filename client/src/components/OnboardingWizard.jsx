@@ -16,7 +16,7 @@ export default function App() {
     }
   });
 
-  // Application state management for database exploration features
+  // Persisted onboarding and collection browser state
   const [discoveredCollections, setDiscoveredCollections] = useState([]);
   const [targetCollection, setTargetCollection] = useState('');
   const [browsedRows, setBrowsedRows] = useState([]);
@@ -39,14 +39,12 @@ export default function App() {
     const usageCount = browsedRows?.length ?? 0;
 
     if (usageCount > 0 && totalRecords > 0) {
-      // Calculate a true percentage slice of the database currently loaded
+      // Compute current dataset load ratio and constrain to 100%
       const truePercentage = (usageCount / totalRecords) * 100;
-      
-      // Cap at 100% dynamically if active entries outpace baseline metrics
       return `${Math.min(truePercentage, 100).toFixed(1)}%`;
     }
 
-    // Baseline fallback if no rows have been pulled yet
+    // Use baseline metric when no browse results are loaded
     return activeClientProfile?.metrics?.activeMonthlyPercentage ?? '0.0%';
   })();
 
@@ -179,28 +177,27 @@ export default function App() {
     }
   };
 
-  // ⚡ UPGRADED: FULLY DYNAMIC SCHEMA-ADAPTIVE PLOTTING PARSER ENGINE
+  // Build chart dataset dynamically from browsed document payloads
   const chartDataset = (() => {
     if (!browsedRows || browsedRows.length === 0) return [];
     
-    // Window slice limits display to 10 plot elements for clean tracking layout width
+    // Restrict chart rendering to the first 10 rows for stable rendering
     const dataWindow = browsedRows.slice(0, 10);
     
     return dataWindow.map((row, i) => {
-      // 1. Dynamic Label Extraction Strategy
+      // Extract label from prioritized row metadata fields
       let extractedLabel = row.department || row.name || row.label || row.category || row.title || '';
       if (!extractedLabel) {
-        // Fallback fallback: Search for the first valid string key layout signature that isn't a tracking ID
+        // Fallback to the first string field excluding common identifier keys
         const stringKey = Object.keys(row).find(k => typeof row[k] === 'string' && k !== '_id' && k !== 'id');
         extractedLabel = stringKey ? row[stringKey] : `Idx_${i + 1}`;
       }
-      // Clean up technical system sub-node labeling annotations cleanly
+      // Normalize display label formatting
       const cleanLabel = String(extractedLabel).replace(" Node", "");
 
-      // 2. Dynamic Value Extraction Strategy
+      // Extract numeric value from row fields with fallback to first numeric property
       let extractedValue = row.value || row.count || row.idleMinutes || row.capturedScreenTicks || row.score || 0;
       if (extractedValue === 0) {
-        // Fallback fallback: Search object indices for the first property explicitly containing a number
         const numberKey = Object.keys(row).find(k => typeof row[k] === 'number');
         extractedValue = numberKey ? row[numberKey] : 0;
       }
@@ -211,7 +208,7 @@ export default function App() {
 
   const maxChartValue = Math.max(...chartDataset.map(d => d.value), 1);
 
-  // SVG dimensions for trendline coordinates computing layout matrix
+  // Configure SVG dimensions for trendline coordinate generation
   const svgWidth = 650;
   const svgHeight = 160;
   const paddingX = 40;
@@ -242,7 +239,6 @@ export default function App() {
               activeClientProfile ? (
                 <div className="w-full max-w-4xl mx-auto bg-zinc-900 border border-zinc-800 rounded-xl p-8 shadow-2xl text-zinc-100 font-mono text-sm animate-fadeIn relative">
 
-                  {/* Console Header */}
                   <div className="flex items-center justify-between pb-4 border-b border-zinc-800 mb-6">
                     <div>
                       <h1 className="text-xl font-bold tracking-tight text-zinc-100">{activeClientProfile.companyName || "NEXUS"} Core Console</h1>
@@ -253,7 +249,6 @@ export default function App() {
                     </span>
                   </div>
 
-                  {/* Metrics Dashboard Grid */}
                   <div className="p-6 bg-zinc-950 rounded-lg border border-zinc-800 space-y-6">
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold uppercase tracking-wider text-xs text-emerald-400 flex items-center gap-2">
@@ -287,7 +282,6 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* DYNAMIC ADAPTIVE TRENDLINE SVG COMPONENT */}
                     <div className="border-t border-zinc-900 pt-6">
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">// Dynamic Vector Optimization Analytics Matrix</span>
@@ -388,7 +382,6 @@ export default function App() {
         </Routes>
       </div>
 
-      {/* Database Explorer Console Layer */}
       {activeClientProfile && location.pathname === '/dashboard' && (
         <div className="w-full max-w-4xl mx-auto px-8 relative z-10 -mt-6">
           <div className="mt-8 border-t border-zinc-800/80 pt-6 space-y-4">
@@ -467,7 +460,6 @@ export default function App() {
         </div>
       )}
 
-      {/* AI INTERFACE OVERLAY MODAL WINDOW */}
       {isChatOpen && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 animate-fadeIn">
           <div className="w-full max-w-2xl mx-4 bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-2xl font-mono text-sm text-zinc-100 flex flex-col h-[540px]">
@@ -563,7 +555,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Floating Action Button (FAB) for Pin Board */}
       {location.pathname === '/dashboard' && (
         <div className="fixed bottom-6 right-6 z-50 group">
           <span className="absolute right-14 top-1/2 -translate-y-1/2 bg-zinc-900 border border-zinc-800 text-zinc-400 text-[10px] uppercase font-bold tracking-wider px-2.5 py-1.5 rounded shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none whitespace-nowrap font-sans">

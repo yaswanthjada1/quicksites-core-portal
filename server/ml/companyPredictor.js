@@ -2,14 +2,12 @@ import fs from 'fs';
 import path from 'path';
 
 /**
- * Local Company Predictor Engine
- * Handles internal operational metrics parsing and local business trend modeling
+ * Local company prediction engine for internal metrics normalization and trend estimation.
  */
 export const CompanyPredictor = {
     
     /**
-     * Simulates analyzing a company's historical database entries 
-     * to predict user retention, operational runway, and growth vectors.
+     * Compute normalized retention and growth analytics from raw dataset records.
      */
     analyzeBusinessMetrics: (rawDbData) => {
         console.log("📊 [Local ML Engine]: Initiating secure on-premise data parsing...");
@@ -18,12 +16,12 @@ export const CompanyPredictor = {
             return { error: "No data stream connected." };
         }
 
-        // Calculate baseline growth metrics locally
+        // Compute normalized engagement metrics from the input dataset
         const totalUsers = rawDbData.length;
         const monthlyActiveUsers = rawDbData.filter(user => user.activeThisMonth).length;
         const churnRate = ((totalUsers - monthlyActiveUsers) / totalUsers) * 100;
         
-        // Simulating a simple predictive linear growth vector based on historical signup speeds
+        // Estimate next-month growth using a simple proportional projection
         const projectedNewUsersNextMonth = Math.round(monthlyActiveUsers * 0.12); 
 
         return {
@@ -41,7 +39,7 @@ export const CompanyPredictor = {
     },
 
     /**
-     * Compiles a localized text summary based on private database insights
+     * Render a markdown executive summary from analysis results.
      */
     generateExecutiveSummary: (analysisResults) => {
         const { metrics, predictions } = analysisResults;

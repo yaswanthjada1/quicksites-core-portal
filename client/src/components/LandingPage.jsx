@@ -7,13 +7,11 @@ export default function LandingPage() {
   return (
     <div className="w-full max-w-4xl mx-auto text-center relative z-10 animate-fadeIn">
       
-      {/* Structural Tech Tags */}
       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-[10px] uppercase tracking-widest shadow-inner mb-6">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
         v1.0.0 Architecture Active
       </div>
 
-      {/* Main Punchy Value Headline */}
       <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white mb-6 leading-tight">
         Privacy-First <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-indigo-500 bg-clip-text text-transparent">Business Intelligence</span> On the Edge.
       </h1>
@@ -22,7 +20,6 @@ export default function LandingPage() {
         Extract predictive analytical metrics, compute system churn velocity, and interface with your dataset using standard English. Absolute zero-trust compilation—your raw database credentials never leave your infrastructure footprint.
       </p>
 
-      {/* Core CTA Triggers */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
         <button 
           onClick={() => navigate('/onboarding')}
@@ -39,7 +36,6 @@ export default function LandingPage() {
         </button>
       </div>
 
-      {/* Trust & Architecture Matrix Blueprint Feature Callouts */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left border-t border-zinc-900 pt-12">
         <div className="space-y-2">
           <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold block">// SECURE ISOLATION</span>

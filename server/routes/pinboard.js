@@ -1,10 +1,10 @@
 import express from 'express';
 import { MongoClient } from 'mongodb';
-import ollama from 'ollama'; // ⚡ Import local model engine wrapper
+import ollama from 'ollama'; // Ollama model client wrapper
 
 const router = express.Router();
 
-// --- PINBOARD LAYOUT READ ENDPOINT ---
+// Read stored pinboard layout metadata for the requested collection
 router.post('/layout', async (req, res) => {
   const { databaseUri, targetCollection } = req.body;
 
@@ -38,7 +38,7 @@ router.post('/layout', async (req, res) => {
   }
 });
 
-// --- PINBOARD LAYOUT SAVE ENDPOINT ---
+// Persist pinboard layout metadata for the requested collection
 router.post('/save', async (req, res) => {
   const { databaseUri, targetCollection, widgetBox, activeWidgets } = req.body;
 
@@ -76,8 +76,7 @@ router.post('/save', async (req, res) => {
 });
 
 /**
- * Communicates with the optimized local Qwen model to instantly translate 
- * layout directives into clean, structural workspace blueprint payloads.
+ * Translate blueprint prompts into structured widget payloads using a local LLM.
  */
 async function askLocalBlueprintLLM(prompt) {
   const blueprintInstructions = `You are an absolute-coordinate widget construction node. 
@@ -96,20 +95,20 @@ JSON PAYLOAD INTERFACE SPECIFICATION:
 
   try {
     const response = await ollama.chat({
-      model: 'qwen2.5-coder:1.5b', // 🚀 Running on your near-instant local coder footprint
+      model: 'qwen2.5-coder:1.5b', // Local Qwen Coder inference model
       messages: [
         { role: 'system', content: blueprintInstructions },
         { role: 'user', content: `Generate a dashboard element frame matching: ${prompt}` }
       ],
       options: {
-        temperature: 0.2, // Low value guarantees format structure enforcement
+        temperature: 0.2, // Low temperature enforces stable structured output
         num_predict: 120
       }
     });
 
     let rawContent = response.message.content || '';
     
-    // Safety cleaner: strip out stray markdown delimiters if generated
+    // Strip markdown code fences from model output before JSON parsing
     const cleanContent = rawContent.replace(/```json|```/g, '').trim();
     return JSON.parse(cleanContent);
 
@@ -124,7 +123,7 @@ JSON PAYLOAD INTERFACE SPECIFICATION:
   }
 }
 
-// 🔮 NEW ENDPOINT: EXECUTE SYSTEM COMPILATION
+// Generate a new pinboard widget blueprint from a prompt
 router.post('/generate', async (req, res) => {
   const { prompt } = req.body;
 
@@ -135,7 +134,7 @@ router.post('/generate', async (req, res) => {
   try {
     const componentSpecs = await askLocalBlueprintLLM(prompt);
     
-    // Standardize structural mapping layout payload delivery
+    // Standardize the generated widget payload response
     return res.json({
       success: true,
       widget: {

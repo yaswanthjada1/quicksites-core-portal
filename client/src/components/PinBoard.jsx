@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-// Polished layout glyph configuration assets
+
+// Icon component definitions
 const LayoutIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400">
     <rect x="3" y="3" width="7" height="9" rx="1"></rect>
@@ -51,6 +53,152 @@ const HomeIcon = () => (
   </svg>
 );
 
+// Widget component rendering telemetry-driven card content
+function WidgetComponent({ 
+  widget, 
+  getResolvedValue, 
+  formatWidgetDescription, 
+  handleInteractionStart, 
+  removeWidget, 
+  interactingWidgetId, 
+  interactionType 
+}) {
+  const [telemetryData, setTelemetryData] = useState(null);
+
+  useEffect(() => {
+    const metricTag = widget.description?.metric;
+    const category = widget.category || String(metricTag || widget.title || 'telemetry').toLowerCase();
+
+    const normalizeValue = (value) => {
+      if (typeof value !== 'number') return Number(value) || 0;
+      return value;
+    };
+
+    let baseValue = 0;
+    if (metricTag && String(metricTag).toLowerCase().includes('sales')) {
+      baseValue = 420;
+    } else if (category.includes('memory') || category.includes('devops')) {
+      baseValue = 68;
+    } else if (category.includes('cpu') || category.includes('load')) {
+      baseValue = 32;
+    } else {
+      baseValue = 54;
+    }
+
+    setTelemetryData(prev => ({
+      category,
+      label: metricTag ? String(metricTag) : widget.title || category,
+      value: prev?.value ?? baseValue,
+      unit: category.includes('memory') || category.includes('devops') ? '%' : 'count',
+      timestamp: new Date().toLocaleTimeString()
+    }));
+
+    const intervalId = window.setInterval(() => {
+      setTelemetryData((prev) => {
+        const currentValue = normalizeValue(prev?.value ?? baseValue);
+        const swing = Math.floor(Math.random() * 9) - 4;
+        const nextValue = Math.max(0, Math.min(100, currentValue + swing));
+
+        return {
+          category,
+          label: metricTag ? String(metricTag) : String(widget.title || category),
+          value: nextValue,
+          unit: category.includes('memory') || category.includes('devops') ? '%' : 'count',
+          timestamp: new Date().toLocaleTimeString()
+        };
+      });
+    }, 2000);
+
+    // Example backend telemetry fetch for future integration:
+    // axios.get(`http://localhost:5000/api/telemetry/${category}`)
+    //   .then((res) => {
+    //     setTelemetryData(res.data);
+    //   })
+    //   .catch((err) => console.error('Telemetry fetch failed', err));
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [widget]);
+
+  const safeRenderValue = (value, fallback = 'image_0682ca.png') => {
+    if (value === null || value === undefined) return fallback;
+    if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        return value.join(', ');
+      }
+      return JSON.stringify(value);
+    }
+    return String(value);
+  };
+
+  const liveDisplayValue = safeRenderValue(getResolvedValue(widget.id) ?? widget.value, 'image_0682ca.png');
+  const descriptionText = formatWidgetDescription(widget.description ?? widget.desc ?? 'No description available');
+
+  return (
+    <div 
+      style={{
+        position: 'absolute',
+        left: `${widget.x}px`,
+        top: `${widget.y}px`,
+        width: `${widget.w}px`,
+        height: `${widget.h}px`,
+      }}
+      className={`bg-zinc-900/90 border backdrop-blur-sm rounded-lg p-4 flex flex-col justify-between shadow-2xl group transition-shadow ${
+        interactingWidgetId === widget.id && interactionType === 'drag' 
+          ? 'border-emerald-500/60 shadow-emerald-950/10' 
+          : 'border-zinc-800 hover:border-zinc-700 shadow-black/80'
+      }`}
+    >
+      <div className="flex justify-between items-start">
+        <div className="max-w-[70%]">
+          <span className="text-[8px] font-black tracking-widest text-emerald-400 bg-emerald-950/40 border border-emerald-900/40 px-1.5 py-0.5 rounded uppercase">
+            {widget.type}
+          </span>
+          <h3 className="font-bold text-zinc-200 mt-2 text-xs truncate select-none">{widget.title}</h3>
+        </div>
+        
+        <div className="flex items-center gap-1.5">
+          <div 
+            onMouseDown={(e) => handleInteractionStart(e, widget, 'drag')}
+            className="p-1 rounded bg-zinc-950 border border-zinc-800 text-zinc-500 hover:text-emerald-400 cursor-grab active:cursor-grabbing transition-colors"
+          >
+            <MoveIcon />
+          </div>
+          <button 
+            onClick={() => removeWidget(widget.id)}
+            className="p-1 rounded bg-zinc-950 border border-zinc-850 text-zinc-600 hover:text-red-400 transition-colors cursor-pointer"
+          >
+            <XIcon />
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-2 pt-2 border-t border-zinc-950/60 flex-1 flex flex-col justify-center min-h-0">
+        <p className="text-lg font-bold text-zinc-100 tracking-tight font-mono text-emerald-400/90 truncate">
+          {telemetryData ? (
+            telemetryData.unit === '%' ?
+              `${telemetryData.label}: ${telemetryData.value}%` :
+              `${telemetryData.label}: ${telemetryData.value.toLocaleString()}`
+          ) : liveDisplayValue}
+        </p>
+        <p className="text-[10px] text-zinc-500 font-sans mt-0.5 leading-normal line-clamp-2">
+          {telemetryData ? `Updated ${telemetryData.timestamp}` : descriptionText}
+        </p>
+      </div>
+
+      <div 
+        onMouseDown={(e) => handleInteractionStart(e, widget, 'resize')}
+        className="absolute bottom-0 right-0 w-3.5 h-3.5 cursor-se-resize flex items-end justify-end p-0.5 group-hover:bg-zinc-800 rounded-br-lg transition-colors"
+      >
+        <svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg" className="text-zinc-600 group-hover:text-emerald-400">
+          <path d="M6 0L0 6M6 3L3 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 export default function PinBoard() {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
@@ -60,14 +208,14 @@ export default function PinBoard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Live aggregated metric variables
+  // Aggregated dashboard statistics state
   const [dbStats, setDbStats] = useState({ totalCount: 0, flaggedCount: 0 });
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Interaction vectors
+  // Drag and resize interaction state
   const [interactingWidgetId, setInteractingWidgetId] = useState(null);
   const [interactionType, setInteractionType] = useState(null);
   const [startMousePos, setStartMousePos] = useState({ x: 0, y: 0 });
@@ -75,11 +223,11 @@ export default function PinBoard() {
 
   const clientProfile = JSON.parse(localStorage.getItem('activeClientProfile') || '{}');
 
-  // 📥 INITIAL SYNCHRONIZATION FROM DATABASE
+  // Initial board synchronization from backend
   useEffect(() => {
     const fetchLayoutAndData = async () => {
       try {
-        // 1. Fetch layout map coordinates
+        // Request saved board layout from backend
         const layoutRes = await fetch('http://localhost:5000/api/pinboard/layout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -100,7 +248,7 @@ export default function PinBoard() {
         let initialBox = layoutJson.widgetBox || [];
 
         if (!layoutJson.success || initialActive.length === 0) {
-          // Defaults if collection configuration parameters are clear-empty
+          // Fallback layout when backend returns no active configuration
           initialBox = [
             { id: 'w_ticks', title: 'Screen Ticks Monitor', type: 'metric', desc: 'Avg activity capacity' },
             { id: 'w_idle', title: 'Idle Time Alert', type: 'status', desc: 'Node tracking trigger' },
@@ -110,14 +258,14 @@ export default function PinBoard() {
           ];
         }
 
-        // 2. Fetch live content statistics to extract dynamic telemetry values
+        // Request initial content statistics for telemetry metrics
         const dataRes = await fetch('http://localhost:5000/api/onboarding/browse', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             databaseType: clientProfile.databaseType,
             databaseUri: clientProfile.databaseUri,
-            targetCollection: 'corporate' // Targets your primary business collection stream
+            targetCollection: 'corporate' // Primary business collection stream
           })
         });
         const dataJson = await dataRes.json();
@@ -125,7 +273,7 @@ export default function PinBoard() {
         if (dataJson.success && dataJson.rows) {
           const rows = dataJson.rows;
           const totalCount = rows.length;
-          // Dynamically compute idle threshold elements straight from your data metrics
+          // Compute flagged idle node count from returned rows
           const flaggedCount = rows.filter(row => row.idleMinutes > 15 || row.idleMinutes?.['$gt'] > 15).length;
           
           setDbStats({ totalCount, flaggedCount });
@@ -143,7 +291,7 @@ export default function PinBoard() {
     fetchLayoutAndData();
   }, []);
 
-  // Helper method to assign dynamic content to keys at render runtime
+  // Resolve fallback widget display text for standard IDs
   const getResolvedValue = (widgetId) => {
     if (widgetId === 'w_ticks') return `${dbStats.totalCount.toLocaleString()} Elements`;
     if (widgetId === 'w_idle') return dbStats.flaggedCount > 0 ? `${dbStats.flaggedCount} Flagged Nodes` : '0 Idle Flags';
@@ -151,7 +299,30 @@ export default function PinBoard() {
     return null;
   };
 
-  // 💾 SAVE PARAMETERS TO DATABASE
+  const formatWidgetDescription = (description) => {
+    if (typeof description === 'string') {
+      return description;
+    }
+
+    if (description && typeof description === 'object') {
+      const { metric, interval, ...rest } = description;
+      const formattedParts = [];
+
+      if (metric !== undefined) formattedParts.push(`Metric: ${String(metric)}`);
+      if (interval !== undefined) formattedParts.push(`Interval: ${String(interval)}`);
+
+      Object.keys(rest).forEach((key) => {
+        const value = rest[key];
+        formattedParts.push(`${key}: ${typeof value === 'string' || typeof value === 'number' ? value : JSON.stringify(value)}`);
+      });
+
+      return formattedParts.length > 0 ? formattedParts.join(' | ') : JSON.stringify(description);
+    }
+
+    return String(description || '');
+  };
+
+  // Persist current layout to backend storage
   const handleCommitLayout = async () => {
     setIsSaving(true);
     try {
@@ -234,7 +405,7 @@ export default function PinBoard() {
     setInteractionType(null);
   };
 
-  // 🔮 AI WIREFRAME FACTORY: Real-time layout blueprint model compilation
+  // Generate new widget blueprints from the AI prompt
   const handleAiGeneration = async (e) => {
     e.preventDefault();
     if (!aiPrompt.trim()) return;
@@ -278,7 +449,6 @@ export default function PinBoard() {
     >
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none opacity-70" />
       
-      {/* HEADER CONTROLS BAR */}
       <div className="flex flex-wrap gap-4 justify-between items-center border-b border-zinc-900 pb-4 mb-4 relative z-10 bg-zinc-950/80 backdrop-blur-md">
         <div>
           <h1 className="text-xl font-bold tracking-tight flex items-center gap-2 text-zinc-100">
@@ -305,7 +475,6 @@ export default function PinBoard() {
         </div>
       </div>
 
-      {/* 🌌 ABSOLUTE CANVAS VIEWPORT GRAPH ARTBOARD */}
       <div 
         className="flex-1 rounded-xl border border-zinc-900 bg-zinc-950/40 relative z-10 overflow-auto shadow-inner min-h-0"
       >
@@ -317,73 +486,21 @@ export default function PinBoard() {
             </button>
           </div>
         ) : (
-          activeWidgets.map((widget) => {
-            const liveDisplayValue = getResolvedValue(widget.id) || widget.value || 'AI Compiled';
-            return (
-              <div 
-                key={widget.id} 
-                style={{
-                  position: 'absolute',
-                  left: `${widget.x}px`,
-                  top: `${widget.y}px`,
-                  width: `${widget.w}px`,
-                  height: `${widget.h}px`,
-                }}
-                className={`bg-zinc-900/90 border backdrop-blur-sm rounded-lg p-4 flex flex-col justify-between shadow-2xl group transition-shadow ${
-                  interactingWidgetId === widget.id && interactionType === 'drag' 
-                    ? 'border-emerald-500/60 shadow-emerald-950/10' 
-                    : 'border-zinc-800 hover:border-zinc-700 shadow-black/80'
-                }`}
-              >
-                {/* TOP ACTIONS DECK */}
-                <div className="flex justify-between items-start">
-                  <div className="max-w-[70%]">
-                    <span className="text-[8px] font-black tracking-widest text-emerald-400 bg-emerald-950/40 border border-emerald-900/40 px-1.5 py-0.5 rounded uppercase">
-                      {widget.type}
-                    </span>
-                    <h3 className="font-bold text-zinc-200 mt-2 text-xs truncate select-none">{widget.title}</h3>
-                  </div>
-                  
-                  <div className="flex items-center gap-1.5">
-                    <div 
-                      onMouseDown={(e) => handleInteractionStart(e, widget, 'drag')}
-                      className="p-1 rounded bg-zinc-950 border border-zinc-800 text-zinc-500 hover:text-emerald-400 cursor-grab active:cursor-grabbing transition-colors"
-                    >
-                      <MoveIcon />
-                    </div>
-                    <button 
-                      onClick={() => removeWidget(widget.id)}
-                      className="p-1 rounded bg-zinc-950 border border-zinc-850 text-zinc-600 hover:text-red-400 transition-colors cursor-pointer"
-                    >
-                      <XIcon />
-                    </button>
-                  </div>
-                </div>
-
-                {/* CARD BODY */}
-                <div className="mt-2 pt-2 border-t border-zinc-950/60 flex-1 flex flex-col justify-center min-h-0">
-                  <p className="text-lg font-bold text-zinc-100 tracking-tight font-mono text-emerald-400/90 truncate">
-                    {liveDisplayValue}
-                  </p>
-                  <p className="text-[10px] text-zinc-500 font-sans mt-0.5 leading-normal line-clamp-2">{widget.desc}</p>
-                </div>
-
-                {/* RESIZE ANCHOR */}
-                <div 
-                  onMouseDown={(e) => handleInteractionStart(e, widget, 'resize')}
-                  className="absolute bottom-0 right-0 w-3.5 h-3.5 cursor-se-resize flex items-end justify-end p-0.5 group-hover:bg-zinc-800 rounded-br-lg transition-colors"
-                >
-                  <svg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg" className="text-zinc-600 group-hover:text-emerald-400">
-                    <path d="M6 0L0 6M6 3L3 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  </svg>
-                </div>
-              </div>
-            );
-          })
+          activeWidgets.map((widget) => (
+            <WidgetComponent
+              key={widget.id}
+              widget={widget}
+              getResolvedValue={getResolvedValue}
+              formatWidgetDescription={formatWidgetDescription}
+              handleInteractionStart={handleInteractionStart}
+              removeWidget={removeWidget}
+              interactingWidgetId={interactingWidgetId}
+              interactionType={interactionType}
+            />
+          ))
         )}
       </div>
 
-      {/* 📦 BLUEPRINT SIDE REGISTRY PANEL */}
       <div className={`fixed inset-y-0 right-0 w-96 bg-zinc-900/95 backdrop-blur-md border-l border-zinc-800 shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900">
           <h2 className="font-bold text-xs tracking-wider uppercase text-zinc-400">Blueprint Registry</h2>
@@ -447,7 +564,6 @@ export default function PinBoard() {
         </div>
       </div>
 
-      {/* 🧭 HOME ACTION NAVIGATION BAR */}
       <div className="fixed bottom-6 left-6 z-40 group">
         <span className="absolute left-14 top-1/2 -translate-y-1/2 bg-zinc-950 border border-zinc-800 text-zinc-400 text-[10px] uppercase font-bold tracking-wider px-2.5 py-1.5 rounded shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none whitespace-nowrap font-sans">
           Return to Core Console

@@ -1,11 +1,14 @@
-import { DbFactory } from './config/dbFactory.js';
-import { CompanyPredictor } from './ml/companyPredictor.js';
+import { DbFactory } from '../config/dbFactory.js';
+import { CompanyPredictor } from '../ml/companyPredictor.js';
 
+/**
+ * Execute local engine diagnostics for database introspection and fallback recovery.
+ */
 async function runLocalEngineTest() {
     console.log("🚀 [Diagnostic Test]: Starting Dynamic Database Introspection Test...");
     
-    // Test Case 1: Simulating a MongoDB Atlas or local instance connection
-    // Replace this string with your actual local string if you have MongoDB running locally: 'mongodb://localhost:27017/test_analytics'
+    // Test scenario: evaluate MongoDB discovery and fallback handling using a mock connection URI
+    // Replace mockMongoUri with a live MongoDB connection string for integration validation
     const mockMongoUri = 'mongodb://localhost:27017/non_existent_fallback_test'; 
     
     console.log("\n--- 🧪 TEST 1: Evaluating MongoDB Behavioral Routing ---");
@@ -20,7 +23,7 @@ async function runLocalEngineTest() {
     }
 
     console.log("\n--- 🧪 TEST 2: Evaluating System Baseline Recovery ---");
-    // This forces the factory to run its fallback logic to ensure your server never crashes for a client
+    // Validate fallback telemetry generation when discovery yields no usable records
     const fallbackData = DbFactory.getFallbackTelemetry();
     const metricAnalysis = CompanyPredictor.analyzeBusinessMetrics(fallbackData);
     console.log("🛡️ Fallback Mathematical Computations Verified Successfully:");

@@ -3,8 +3,8 @@ import { MongoClient } from 'mongodb';
 
 export class DbFactory {
     /**
-     * Dynamically adapts to any database, introspects its structure,
-     * discovers tables/collections, and normalizes fields automatically.
+     * Dispatch adaptive extraction logic for the specified database engine.
+     * Returns normalized telemetry records or fallback data when discovery yields no usable source.
      */
     static async connectAndExtract(dbType, connectionUri) {
         console.log(`🔌 [DB Factory]: Initiating auto-discovery probe on variant: [${dbType}]`);
@@ -22,21 +22,23 @@ export class DbFactory {
         }
     }
 
-    // --- SMART ADAPTIVE MONGODB PROBE ---
+    /**
+     * Discover the most representative MongoDB collection and normalize document fields.
+     */
     static async handleDynamicMongoDB(uri) {
         const client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
         try {
             await client.connect();
             const db = client.db();
             
-            // 1. Auto-discover all available collections
+            // List available collections for the current MongoDB database
             const collections = await db.listCollections().toArray();
             if (collections.length === 0) return this.getFallbackTelemetry();
 
-            // 2. Target the most likely user/customer collection dynamically
+            // Select a representative collection from preferred business-oriented names, fallback to the first discovered collection
             const targetCollectionName = collections.find(c => 
                 ['users', 'customers', 'accounts', 'members', 'profiles'].includes(c.name.toLowerCase())
-            )?.name || collections[0].name; // Fallback to the first collection found if no match
+            )?.name || collections[0].name;
 
             console.log(`🔍 [DB Factory]: Auto-discovered MongoDB Collection: "${targetCollectionName}"`);
             
@@ -44,17 +46,17 @@ export class DbFactory {
             const rawDocs = await collection.find({}).limit(100).toArray();
             if (rawDocs.length === 0) return this.getFallbackTelemetry();
 
-            // 3. Dynamic Field Mapping: Look at the first document to identify active flags
+            // Derive normalized active and plan field keys from the first sample document
             const sampleDoc = rawDocs[0];
             const activeFieldKey = Object.keys(sampleDoc).find(key => 
                 ['active', 'isactive', 'activethismonth', 'status', 'logged_in'].includes(key.toLowerCase())
-            ) || Object.keys(sampleDoc)[1]; // Fallback to the second field if no active flag matches
+            ) || Object.keys(sampleDoc)[1];
 
             const planFieldKey = Object.keys(sampleDoc).find(key => 
                 ['plan', 'tier', 'plantier', 'subscription', 'type'].includes(key.toLowerCase())
             );
 
-            // 4. Normalize the data dynamically based on discovered keys
+            // Map MongoDB documents into the normalized telemetry record schema
             return rawDocs.map(doc => ({
                 id: doc._id.toString(),
                 activeThisMonth: doc[activeFieldKey] === true || doc[activeFieldKey] === 'active' || doc[activeFieldKey] === 1,
@@ -65,13 +67,15 @@ export class DbFactory {
         }
     }
 
-    // --- SMART ADAPTIVE POSTGRESQL PROBE ---
+    /**
+     * Discover database tables and columns in PostgreSQL, then normalize the selected rows.
+     */
     static async handleDynamicPostgreSQL(uri) {
         const client = new pg.Client({ connectionString: uri, connectionTimeoutMillis: 5000 });
         try {
             await client.connect();
             
-            // 1. Auto-discover all relational tables in the public schema
+            // Query public schema tables to identify available PostgreSQL data sources
             const tableDiscovery = await client.query(`
                 SELECT table_name 
                 FROM information_schema.tables 
@@ -80,14 +84,14 @@ export class DbFactory {
 
             if (tableDiscovery.rows.length === 0) return this.getFallbackTelemetry();
 
-            // 2. Select the most viable data target table
+            // Choose a representative table from preferred names, fallback to the first discovered table
             const targetTableName = tableDiscovery.rows.find(r => 
                 ['users', 'customers', 'accounts', 'members', 'profiles'].includes(r.table_name.toLowerCase())
             )?.table_name || tableDiscovery.rows[0].table_name;
 
             console.log(`🔍 [DB Factory]: Auto-discovered PostgreSQL Table: "${targetTableName}"`);
 
-            // 3. Introspect column configurations for this table to map keys dynamically
+            // Introspect column names for the selected table to enable dynamic field mapping
             const columnDiscovery = await client.query(`
                 SELECT column_name 
                 FROM information_schema.columns 
@@ -100,7 +104,7 @@ export class DbFactory {
             const activeKey = columns.find(c => ['active', 'is_active', 'active_this_month', 'status'].includes(c.toLowerCase()));
             const planKey = columns.find(c => ['plan', 'tier', 'plan_tier', 'subscription'].includes(c.toLowerCase()));
 
-            // 4. Fetch rows dynamically using discovered column labels
+            // Fetch rows using dynamically mapped column labels
             const selectQuery = `SELECT ${idKey} AS id ${activeKey ? `, ${activeKey} AS active` : ''} ${planKey ? `, ${planKey} AS plan` : ''} FROM "${targetTableName}" LIMIT 100`;
             const result = await client.query(selectQuery);
             
@@ -114,6 +118,9 @@ export class DbFactory {
         }
     }
 
+    /**
+     * Provide a minimal normalized dataset when discovery cannot produce usable records.
+     */
     static getFallbackTelemetry() {
         console.log(`⚠️ [DB Factory]: Discovered target table structure is empty. Providing unified baseline telemetry stream.`);
         return [

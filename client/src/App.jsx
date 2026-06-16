@@ -14,7 +14,7 @@ export default function OnboardingWizard({ onConnectionSuccess }) {
   const [telemetryData, setTelemetryData] = useState(null);
 
   /**
-   * Updates form state on user input and clears previous validation errors.
+   * Update onboarding form state and clear any validation error.
    * @param {Event} e - Input change event
    */
   const handleChange = (e) => {
@@ -23,8 +23,7 @@ export default function OnboardingWizard({ onConnectionSuccess }) {
   };
 
   /**
-   * Establishes a connection to the specified database.
-   * Validates credentials and retrieves initial telemetry metrics.
+   * Connect to the configured database and retrieve initial telemetry.
    * @param {Event} e - Form submission event
    */
   const handleConnectDatabase = async (e) => {
@@ -128,11 +127,9 @@ export default function OnboardingWizard({ onConnectionSuccess }) {
   return (
     <div className="w-full max-w-xl mx-auto bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] text-zinc-100 relative overflow-hidden animate-fadeIn">
       
-      {/* Decorative visual accent elements */}
       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
       <div className="absolute top-0 right-12 w-24 h-[20px] bg-emerald-500/10 blur-xl rounded-full" />
 
-      {/* Header section with title and status indicator */}
       <div className="flex items-start justify-between mb-8 pb-6 border-b border-zinc-800/60">
         <div>
           <div className="flex items-center gap-2">
@@ -157,11 +154,10 @@ export default function OnboardingWizard({ onConnectionSuccess }) {
         </div>
       )}
 
-      {/* Step 1: Organization Configuration */}
       {step === 1 && (
         <div className="space-y-6">
           <p className="text-xs text-zinc-400 font-mono leading-relaxed bg-zinc-950/40 p-3 rounded-lg border border-zinc-800/40">
-            // Enter organization details and operational classification parameters.
+            Enter organization details and operational classification parameters.
           </p>
           
           <div className="space-y-2">
@@ -215,7 +211,6 @@ export default function OnboardingWizard({ onConnectionSuccess }) {
         </div>
       )}
 
-      {/* Step 2: Database Connection Configuration */}
       {step === 2 && (
         <form onSubmit={handleConnectDatabase} className="space-y-6">
           <div className="p-4 bg-emerald-950/10 border border-emerald-500/20 text-emerald-300/90 text-xs rounded-xl font-mono space-y-1.5 leading-relaxed">
@@ -275,7 +270,6 @@ export default function OnboardingWizard({ onConnectionSuccess }) {
         </form>
       )}
 
-      {/* Step 3: Connection Validation and Initial Metrics Display */}
       {step === 3 && telemetryData && (
         <div className="space-y-6">
           <div className="text-center py-4 relative">
@@ -288,7 +282,6 @@ export default function OnboardingWizard({ onConnectionSuccess }) {
             </p>
           </div>
 
-          {/* System performance and utilization metrics */}
           <div className="grid grid-cols-3 gap-4 font-mono text-center">
             <div className="bg-zinc-950/80 p-4 rounded-xl border border-zinc-800/60 shadow-inner">
               <span className="block text-[9px] text-zinc-500 uppercase tracking-widest font-bold">Records Indexed</span>
@@ -310,10 +303,9 @@ export default function OnboardingWizard({ onConnectionSuccess }) {
             </div>
           </div>
 
-          {/* Predictive analytics and system health assessment */}
           <div className="bg-zinc-950/90 p-5 rounded-xl border border-zinc-800/80 font-mono text-xs text-zinc-400 space-y-2.5 shadow-inner">
             <span className="text-[9px] uppercase tracking-widest text-emerald-400 font-black block">
-              // System Predictions and Health Assessment
+              System predictions and health assessment
             </span>
             <div className="h-[1px] bg-zinc-800/60 my-2" />
             <p className="flex justify-between items-center">
