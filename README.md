@@ -1,20 +1,18 @@
-# 🌐 QuickSites Studio — Core Portal & Infinite Workspace
+#  QuickSites Studio — Core Portal & Infinite Workspace
 
 An opinionated full-stack dashboard and canvas engine that connects local or remote data stores to a local LLM-based widget compiler. Use it to explore collections, visualize telemetry, and synthesize dashboard widgets from natural language.
 
 ---
 
-## Table of Contents
+##  Key Architectural Features
 
-- [Quick Start](#quick-start)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [API Reference](#api-reference)
-- [Telemetry & Optimization](#telemetry--optimization)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
-
+| Component | Description | Operational Core |
+| :--- | :--- | :--- |
+| **Intelligent Query Agent** | Natural language English-to-MongoDB query compiler with real-time payload mapping. | `ollama` + `qwen2.5-coder:1.5b` |
+| **Telemetry Vector Engine** | Dependency-free, highly responsive SVG line graph that dynamically scales to any schema footprint. | React Native SVG + Tailwind CSS |
+| **Infinite Workspace Canvas** | Draggable, resizable canvas board with absolute pixel locking. | React Workspace Hooks |
+| **AI Widget Compiler** | Autonomous layout blueprint generator that turns prompts into functional dashboard widgets. | Low-temperature LLM Inference |
+| **Persistent Config Layer** | Centralized database connection pooling to optimize network transaction latency. | MongoDB Connection Pool |
 ---
 
 ## Quick Start
@@ -242,7 +240,7 @@ let extractedLabel = row.department || row.name || row.label || `Idx_${i + 1}`;
 let extractedValue = row.value || row.count || row.idleMinutes || 0;
 ```
 
-## 🚨 System Diagnostics & Troubleshooting
+##  System Diagnostics & Troubleshooting
 
 - **SyntaxError: Unexpected token '
 
@@ -260,9 +258,23 @@ Bash
 ```
   npx kill-port 5000
   npx kill-port 5173
-```
 
-- **AI Generation Timeouts:**
-Verify that the Ollama service is listening on its default localhost gateway address: `http://127.0.0.1:11434`.
+---
+```
+## 🤝 Acknowledgments & Product Strategy
+
+While the full-stack architecture, local AI orchestration, and codebase were engineered entirely from scratch, a major shout-out goes to **Javvadi Karun Swagath** for serving as the core product strategist for this build. 
+
+His deep expertise in enterprise business intelligence and Power BI architectures was fundamental in mapping out the dashboard logic. He provided vital guidance on how complex data schemas should map to telemetry streams and how user-centric analytics frameworks operate, making it possible to cleanly translate those data visualization methodologies into this custom React/Node.js stack.
+
+---
+
+## 📜 License
+
+See the `LICENSE` file for full terms regarding the proprietary restrictions and anti-resale clauses protecting this software architecture.
 
 ### 🔒 Operational Matrix Status: `OPTIMAL / ONLINE`
+```
+```
+- **AI Generation Timeouts:**
+Verify that the Ollama service is listening on its default localhost gateway address: `http://127.0.0.1:11434`.
