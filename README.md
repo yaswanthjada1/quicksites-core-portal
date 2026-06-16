@@ -260,7 +260,7 @@ Bash
   npx kill-port 5173
 
 ---
-
+```
 ## 🤝 Acknowledgments & Product Strategy
 
 While the full-stack architecture, local AI orchestration, and codebase were engineered entirely from scratch, a major shout-out goes to **Javvadi Karun Swagath** for serving as the core product strategist for this build. 
